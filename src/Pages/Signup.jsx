@@ -1,0 +1,226 @@
+import { Avatar, Box, Button, CircularProgress, FormControlLabel, Grid, Link, Switch, TextField, Typography } from '@mui/material'
+import React, { useState } from 'react'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import axios from 'axios'
+import { ToastContainer, toast } from 'react-toastify'
+import apis from '../apis'
+import { redirect, useNavigate } from 'react-router-dom'
+
+const Signup = () => {
+    const [qrVisible, setQrVisble] = useState(false)
+    const [url, setUrl] = useState()
+    const [code, setCode] = useState();
+    const [email, setEmail] = useState("");
+    const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        setLoading(true)
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries())
+    
+        const newData = {
+            "id": data.id,
+            "firstName": data.firstName,
+            "lastName": data.lastName,
+            "email": data.email,
+            "phone": data.phone,
+            "address": data.address,
+            "password": data.password,
+            "isTFAEnabled": !!data.isTFAEnabled
+        }
+        setEmail(data.email)
+        axios.post(apis.register, newData)
+        .then((res) => {
+            
+            if(res.data.tfaenabled){
+                setUrl(res.data.secretImageUri)
+                setQrVisble(true)
+                setLoading(false)
+            }
+            else{
+                navigate("/")
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
+    const changeCode = (e) => {
+        setCode(e.target.value)
+    }
+
+    const verfiyCode = (e) => {
+        e.preventDefault()
+        const data = {
+            "email": email,
+            "code": code
+        };
+        console.log(data);
+        axios.post(apis.verifyCode, data)
+        .then((res) => {
+            console.log(res);
+            navigate("/")
+        })
+        .catch((err) => {
+            toast.error(err);
+            console.log(err);
+        })
+    }
+
+    return (
+        <Grid container sx={{ height: "100vh" }}>
+            <Grid item md={8}
+                sx={{
+                    display: { sm: "none", lg: "block" },
+                    backgroundImage: `url(/static/image/ddu.avif)`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    height: "100vh"
+                }}
+
+            />
+            {
+                !qrVisible ? !loading ?
+                    <Grid item xs={12} lg={4}
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}>
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                            width: "100%"
+                        }}>
+
+                            <Avatar sx={{ bgcolor: 'black' }}>
+                                <LockOutlinedIcon />
+                            </Avatar>
+                            <Typography component="h1" variant="h5" fontWeight="bold">
+                                Sign Up
+                            </Typography>
+                            <Box component="form" noValidate="false" onSubmit={handleSubmit} sx={{ width: "70%" }}>
+                                <TextField
+                                    variant="standard"
+                                    label="Id"
+                                    name="id"
+                                    sx={{ marginY: 1 }}
+                                    required
+                                    fullWidth
+                                />
+                                <Box sx={{ display: "flex" }}>
+
+                                    <TextField
+                                        variant="standard"
+                                        label="First Name"
+                                        name="firstName"
+                                        sx={{ marginY: 1, marginRight: 1 }}
+                                        required
+                                        fullWidth
+                                    />
+                                    <TextField
+                                        variant="standard"
+                                        label="Last Name"
+                                        name="lastName"
+                                        sx={{ marginY: 1, marginLeft: 1 }}
+                                        required
+                                        fullWidth
+                                    />
+                                </Box>
+
+                                <TextField
+                                    variant="standard"
+                                    label="Email"
+                                    name="email"
+                                    sx={{ marginY: 1 }}
+                                    required
+                                    fullWidth
+                                />
+                                <TextField
+                                    variant="standard"
+                                    label="Mobile No"
+                                    name="phone"
+                                    sx={{ marginY: 1 }}
+                                    required
+                                    fullWidth
+                                />
+                                <TextField
+                                    variant="standard"
+                                    label="Address"
+                                    name="address"
+                                    sx={{ marginY: 1 }}
+                                    required
+                                    fullWidth
+                                />
+                                <TextField
+                                    variant="standard"
+                                    label="Password"
+                                    name="password"
+                                    sx={{ marginY: 1 }}
+                                    required
+                                    fullWidth
+                                />
+                                <FormControlLabel name='isTFAEnabled' control={<Switch />} label="Enable Two Factor Authentication" />
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    sx={{ marginY: 4 }}
+                                >
+                                    Register
+                                </Button>
+                                <Box>
+                                    <Typography variant="subtitle1">
+                                        <Link href="/">Already have account?</Link>
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Grid>
+                    :
+                    <Grid item xs={12} lg={4} sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <CircularProgress />
+                    </Grid>
+                    
+                    :
+                    <Grid item xs={12} lg={4} sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection:"column"
+                    }}>
+                        <Typography variant='h5' sx={{ fontWeight: "bold", textAlign: "center" }}>Set Up Two Factor Authentication</Typography>
+                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                            <img src={url} />
+                        </Box>
+                        <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width:"100%" }}>
+
+                            <TextField name='code' variant='filled' label="Enter 6 digit code" sx={{ width: "80%" }}  onChange={changeCode}/>
+
+                            <Button
+                                type="submit"
+                                onClick={verfiyCode}
+                                variant="contained"
+                                sx={{ marginY: 4, width: "80%" }}
+                            >
+                                Verify
+                            </Button>
+                        </Box>
+                    </Grid>
+            }
+            <ToastContainer />
+        </Grid>
+    )
+}
+
+export default Signup
