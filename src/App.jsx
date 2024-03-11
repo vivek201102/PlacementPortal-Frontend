@@ -40,7 +40,7 @@ function App() {
       errorElement:<PageNotFound />
     },
     {
-      path: '/student/',
+      path: '/student',
       element: <Dashboard />,
       children:[
         {
