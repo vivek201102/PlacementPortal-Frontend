@@ -78,7 +78,7 @@ const Login = () => {
       })
       .catch((err) => {
         if (err.response != undefined)
-          toast.error(err.response.data)
+          toast.error(err.response.code)
         else
           toast.error("Server error")
         console.log(err);
