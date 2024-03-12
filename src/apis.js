@@ -1,5 +1,6 @@
 const env = process.env.VITE_ENV
-export const baseUrl = env == 'dev' ? "http://localhost:8080/api/v1" : "https://placementportal-backend-production.up.railway.app/api/v1";
+const prod_backend_url = process.env.VITE_BACKEND_URL
+export const baseUrl = env == 'dev' ? "http://localhost:8080/api/v1" : `${prod_backend_url}/api/v1`;
 export const apis = {
     authenticate: `${baseUrl}/auth/authenticate-user`,
     register: `${baseUrl}/auth/register-student`,
