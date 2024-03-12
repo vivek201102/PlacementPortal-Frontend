@@ -1,10 +1,12 @@
-import { Avatar, Box, Button, CircularProgress, FormControlLabel, Grid, Link, Switch, TextField, Typography } from '@mui/material'
+import { Avatar, Box, Button, CircularProgress, FormControlLabel, Grid, IconButton, InputAdornment, Link, Switch, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import apis from '../apis'
 import { redirect, useNavigate } from 'react-router-dom'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
 const Signup = () => {
     const [qrVisible, setQrVisble] = useState(false)
@@ -13,13 +15,29 @@ const Signup = () => {
     const [email, setEmail] = useState("");
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [error, setError] = useState({
+        id: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        password: ''
+    })
+
+    const handleShowPasswordToggle = () => {
+        setShowPassword(!showPassword)
+    }
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setLoading(true)
         const formData = new FormData(event.target);
         const data = Object.fromEntries(formData.entries())
-    
+        if(validate(data)){
+            return
+        }
+        setLoading(true)
         const newData = {
             "id": data.id,
             "firstName": data.firstName,
@@ -32,20 +50,20 @@ const Signup = () => {
         }
         setEmail(data.email)
         axios.post(apis.register, newData)
-        .then((res) => {
-            
-            if(res.data.tfaenabled){
-                setUrl(res.data.secretImageUri)
-                setQrVisble(true)
-                setLoading(false)
-            }
-            else{
-                navigate("/")
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+            .then((res) => {
+
+                if (res.data.tfaenabled) {
+                    setUrl(res.data.secretImageUri)
+                    setQrVisble(true)
+                    setLoading(false)
+                }
+                else {
+                    navigate("/")
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     const changeCode = (e) => {
@@ -60,14 +78,47 @@ const Signup = () => {
         };
         console.log(data);
         axios.post(apis.verifyCode, data)
-        .then((res) => {
-            console.log(res);
-            navigate("/")
-        })
-        .catch((err) => {
-            toast.error(err);
-            console.log(err);
-        })
+            .then((res) => {
+                console.log(res);
+                navigate("/")
+            })
+            .catch((err) => {
+                toast.error(err);
+                console.log(err);
+            })
+    }
+
+    const validate = (data) => {
+        let isError = false
+        if (data.id == '') {
+            setError({ ...error, id: 'Id is required' })
+            isError = true
+        }
+        if (data.firstName == '') {
+            setError({ ...error, firstName: 'First Name is required' })
+            isError = true
+        }
+        if (data.lastName == '') {
+            setError({ ...error, lastName: 'Last Name is required' })
+            isError = true
+        }
+        if (data.email == '') {
+            setError({ ...error, email: 'Email is required' })
+            isError = true
+        }
+        if (data.phone == '') {
+            setError({ ...error, phone: 'Mobile No. is required' })
+            isError = true
+        }
+        if (data.address == '') {
+            setError({ ...error, address: 'Address is required' })
+            isError = true
+        }
+        if (data.password == '') {
+            setError({ ...error, password: 'Password is required' })
+            isError = true
+        }
+        return isError
     }
 
     return (
@@ -112,6 +163,9 @@ const Signup = () => {
                                     name="id"
                                     sx={{ marginY: 1 }}
                                     required
+                                    error={error.id}
+                                    helperText={error.id}
+                                    onChange={() => { setError({ ...error, id: '' }) }}
                                     fullWidth
                                 />
                                 <Box sx={{ display: "flex" }}>
@@ -123,6 +177,9 @@ const Signup = () => {
                                         sx={{ marginY: 1, marginRight: 1 }}
                                         required
                                         fullWidth
+                                        error={error.firstName}
+                                        helperText={error.firstName}
+                                        onChange={() => { setError({ ...error, firstName: '' }) }}
                                     />
                                     <TextField
                                         variant="standard"
@@ -131,6 +188,9 @@ const Signup = () => {
                                         sx={{ marginY: 1, marginLeft: 1 }}
                                         required
                                         fullWidth
+                                        error={error.lastName}
+                                        helperText={error.lastName}
+                                        onChange={() => { setError({ ...error, lastName: '' }) }}
                                     />
                                 </Box>
 
@@ -140,6 +200,9 @@ const Signup = () => {
                                     name="email"
                                     sx={{ marginY: 1 }}
                                     required
+                                    error={error.email}
+                                    helperText={error.email}
+                                    onChange={() => { setError({ ...error, email: '' }) }}
                                     fullWidth
                                 />
                                 <TextField
@@ -147,6 +210,9 @@ const Signup = () => {
                                     label="Mobile No"
                                     name="phone"
                                     sx={{ marginY: 1 }}
+                                    error={error.phone}
+                                    helperText={error.phone}
+                                    onChange={() => { setError({ ...error, phone: '' }) }}
                                     required
                                     fullWidth
                                 />
@@ -157,15 +223,33 @@ const Signup = () => {
                                     sx={{ marginY: 1 }}
                                     required
                                     fullWidth
+                                    error = {error.address}
+                                    helperText = {error.address}
+                                    onChange={ () => { setError({...error, address: '' })} }
                                 />
                                 <TextField
                                     variant="standard"
                                     label="Password"
                                     name="password"
+                                    type= { showPassword ? "text" : "password"}
                                     sx={{ marginY: 1 }}
+                                    InputProps={{
+                                        endAdornment:(
+                                            <InputAdornment position='end'>
+                                                <IconButton aria-label='toggle password visibility' 
+                                                    onClick={handleShowPasswordToggle}>
+                                                    { showPassword ? <VisibilityOffIcon /> : <VisibilityIcon /> }
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
                                     required
                                     fullWidth
+                                    error = {error.password}
+                                    helperText = {error.password}
+                                    onChange={ () => { setError({...error, password: '' })} }
                                 />
+                                
                                 <FormControlLabel name='isTFAEnabled' control={<Switch />} label="Enable Two Factor Authentication" />
                                 <Button
                                     type="submit"
@@ -191,21 +275,21 @@ const Signup = () => {
                     }}>
                         <CircularProgress />
                     </Grid>
-                    
+
                     :
                     <Grid item xs={12} lg={4} sx={{
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        flexDirection:"column"
+                        flexDirection: "column"
                     }}>
                         <Typography variant='h5' sx={{ fontWeight: "bold", textAlign: "center" }}>Set Up Two Factor Authentication</Typography>
                         <Box sx={{ display: "flex", justifyContent: "center" }}>
                             <img src={url} />
                         </Box>
-                        <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width:"100%" }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: "100%" }}>
 
-                            <TextField name='code' variant='filled' label="Enter 6 digit code" sx={{ width: "80%" }}  onChange={changeCode}/>
+                            <TextField name='code' variant='filled' label="Enter 6 digit code" sx={{ width: "80%" }} onChange={changeCode} />
 
                             <Button
                                 type="submit"

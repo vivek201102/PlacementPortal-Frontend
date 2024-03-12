@@ -121,6 +121,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const studentId = localStorage.getItem('studentId')
   const logoutFromAccount = () => {
+    localStorage.clear()
     navigate('/')
   }
 

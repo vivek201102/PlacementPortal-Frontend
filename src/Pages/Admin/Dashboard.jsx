@@ -121,6 +121,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
 
     const logoutFromAccount = () => {
+      localStorage.clear()
       navigate('/')
     }
 

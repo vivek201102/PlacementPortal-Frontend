@@ -1,5 +1,4 @@
-// export const baseUrl = "http://localhost:8080/api/v1";
-export const baseUrl = "https://placementportal-backend-production.up.railway.app/api/v1";
+export const baseUrl = import.meta.env.VITE_ENV == 'dev' ? "http://localhost:8080/api/v1" : "https://placementportal-backend-production.up.railway.app/api/v1";
 export const apis = {
     authenticate: `${baseUrl}/auth/authenticate-user`,
     register: `${baseUrl}/auth/register-student`,
