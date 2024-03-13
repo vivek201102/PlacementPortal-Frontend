@@ -1,6 +1,7 @@
-const env = process.env.VITE_ENV
+const curr_env = process.env.VITE_ENV
 const prod_backend_url = process.env.VITE_BACKEND_URL
-export const baseUrl = env == 'dev' ? "http://localhost:8080/api/v1" : `${prod_backend_url}/api/v1`;
+export const baseUrl = curr_env == 'dev' ? "http://localhost:8080/api/v1" : `${prod_backend_url}/api/v1`;
+// console.log();
 export const apis = {
     authenticate: `${baseUrl}/auth/authenticate-user`,
     register: `${baseUrl}/auth/register-student`,
