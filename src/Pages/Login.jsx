@@ -47,7 +47,7 @@ const Login = () => {
           navigate('/admin')
       })
       .catch((err) => {
-        console.log(err.response);
+        console.log(err.response.response.data);
         toast.error(err.response.data)
       })
   }
