@@ -33,7 +33,6 @@ const SkillInfo = ({studentSkills, skillList}) => {
 
 
         if (skillId == null) {
-            console.log("in if");
             await axios.post(apis.registerSkill, { "skillName": skillName }, { headers: { Authorization: token } })
                 .then((res) => {
                     skillId = res.data.id;
@@ -48,14 +47,14 @@ const SkillInfo = ({studentSkills, skillList}) => {
         await axios.post(apis.registerStudentSkill, { "studentId": studentId, "skillId": skillId }, { headers: { Authorization: token } })
             .then((res) => {
                 toast.success("Skill added successfully")
+                setSkillName('')
+                setChange(!change)
             })
             .catch((err) => {
                 console.log(err);
                 toast.error("Server error: " + err.code)
             })
 
-        setSkillName('')
-        setChange(!change)
     }
 
     const deleteStudentSkill = (item) => {
