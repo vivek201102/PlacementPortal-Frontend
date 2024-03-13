@@ -45,7 +45,7 @@ const SkillInfo = ({studentSkills, skillList}) => {
                 })
         }
 
-        axios.post(apis.registerStudentSkill, { "studentId": studentId, "skillId": skillId }, { headers: { Authorization: token } })
+        await axios.post(apis.registerStudentSkill, { "studentId": studentId, "skillId": skillId }, { headers: { Authorization: token } })
             .then((res) => {
                 toast.success("Skill added successfully")
             })
