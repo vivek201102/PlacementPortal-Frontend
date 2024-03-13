@@ -81,7 +81,7 @@ const Login = () => {
           toast.error(err.response.code)
         else
           toast.error("Server error")
-        console.log(err);
+        console.log(err.response);
       })
   }
 
