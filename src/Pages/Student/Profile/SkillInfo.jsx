@@ -62,12 +62,12 @@ const SkillInfo = ({studentSkills, skillList}) => {
         console.log(item);
         axios.delete(`${apis.deleteStudentSkill}/${item.id}`, { headers: { Authorization: token } }).then((res) => {
             toast.success("Skill removed successfully")
+            setChange(!change)
         })
             .catch((err) => {
                 toast.error("Error in removing skill")
             })
 
-        setChange(!change)
     }
     return (
         <Grid item xs={12}>
