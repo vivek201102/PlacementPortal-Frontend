@@ -21,10 +21,11 @@ const ViewProfile = () => {
     const [studentInfo, setStudentInfo] = useState()
     const [skillList, setSkillList] = useState([])
     const [studentSkills, setStudentSkills] = useState([])
-    const [change, setChange] = useState(false)
+    const [change, setChange] = useState(true)
     const [education, setEducation] = useState([])
     const [studentExperience, setStudentExperience] = useState([])
     const [projects, setProjects] = useState([])
+
     
 
     

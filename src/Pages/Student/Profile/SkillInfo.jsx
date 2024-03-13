@@ -4,11 +4,12 @@ import React, { useContext, useState } from 'react'
 import { ProfileContext } from '../../../Context/Context'
 import axios from 'axios'
 import apis from '../../../apis'
+import { toast } from 'react-toastify'
 
 
 const SkillInfo = ({studentSkills, skillList}) => {
     const token = localStorage.getItem("token")
-    const {change, setChange, studentId} = useContext(ProfileContext)
+    const { change, setChange, studentId} = useContext(ProfileContext)
     const [searchList, setSearchList] = useState([])
     const [skillName, setSkillName] = useState('')
 
@@ -23,7 +24,6 @@ const SkillInfo = ({studentSkills, skillList}) => {
         let skillId = null
         await axios.get(`${apis.getSkillByName}/${skillName}`, { headers: { Authorization: token } })
             .then((res) => {
-                console.log("Data" + res.data)
                 if (res.data != '')
                     skillId = res.data.id
             })
@@ -49,6 +49,7 @@ const SkillInfo = ({studentSkills, skillList}) => {
                 toast.success("Skill added successfully")
                 setSkillName('')
                 setChange(!change)
+                console.log(res);
             })
             .catch((err) => {
                 console.log(err);
