@@ -63,6 +63,7 @@ const Signup = () => {
             })
             .catch((err) => {
                 console.log(err);
+                setLoading(false)
             })
     }
 
@@ -117,6 +118,36 @@ const Signup = () => {
         if (data.password == '') {
             setError({ ...error, password: 'Password is required' })
             isError = true
+        }
+        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+        if(emailRegex.test(data.email) == false){
+            setError({...error, email: 'Email is not in format'})
+            isError = true
+        }
+
+        const pattern = new RegExp(/^\d{1,10}$/);
+        if(!pattern.test(data.phone)){
+            setError({...error, phone: 'Phone number is not valid'})
+            isError = true
+        }
+        
+        if(data.password != ''){
+            if(data.password.length < 8){
+                setError({...error, password: 'Password must contain at least 8 characters'})
+                isError = true
+            }
+            else if(!/\d/.test(data.password)){
+                setError({...error, password: 'Password must contain at least 1 digit'})
+                isError = true
+            }
+            else if(!/[A-Z]/.test(data.password) || !/[a-z]/.test(data.password)){
+                setError({...error, password: 'Password must contain uppercase and lowercase letters'})
+                isError = true
+            }
+            else if(!/[^A-Za-z0-9]/.test(data.password)){
+                setError({...error, password: 'Password must contain at least one special character'})
+                isError = true    
+            }
         }
         return isError
     }

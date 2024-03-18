@@ -15,6 +15,8 @@ const Drives = () => {
     const [data, setData] = useState([])
     const navigate = useNavigate()
     const [currentDrives, setCurrentDrives] = useState([])
+    const [unfinished, setUnfinished] = useState([])
+    const [finished, setFinished] = useState([])
     const [change, setChange] = useState(false)
     const token = localStorage.getItem("token")
     const [open, setOpen] = useState(false)
@@ -34,6 +36,22 @@ const Drives = () => {
             .catch((err) => {
                 console.log(err);
             })
+
+        axios.get(apis.getUnfinished, { headers: { Authorization: token }})
+        .then((res) => {
+            setUnfinished(res.data)
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+
+        axios.get(apis.getFinished, { headers: { Authorization: token }})
+        .then((res) => {
+            setFinished(res.data)
+        })
+        .catch((err) => {
+            console.log(err);
+        })
 
         axios.get(apis.getAllCurrentDrive,
             { headers: { Authorization: token } })
@@ -88,7 +106,8 @@ const Drives = () => {
             width: 150,
             renderCell: (param) => (
                 <EditIcon sx={{ color: 'blue', cursor: 'pointer' }}
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.stopPropagation()
                         navigate('/admin/drive/edit/' + param.row.id)
                     }} />
             )
@@ -100,7 +119,8 @@ const Drives = () => {
             renderCell: (param) => (
                 <DeleteIcon
                     sx={{ color: 'red', cursor: 'pointer' }}
-                    onClick={() => { openAlert(param.row.id) }}
+                    onClick={(e) => { e.stopPropagation(); 
+                        openAlert(param.row.id) }}
                 />
             ),
             sortable: false
@@ -119,6 +139,111 @@ const Drives = () => {
             )
         }
     ];
+
+    const unfinishedColumns = [
+        { field: 'id', headerName: 'ID', width: 50 },
+        { field: 'companyName', headerName: 'Company Name', width: 200 },
+        { field: 'jobRole', headerName: 'Role', width: 180 },
+        { field: 'ctc', headerName: 'CTC', width: 150 },
+        {
+            field: 'createdAt',
+            headerName: 'Posted on',
+            type: 'string',
+            width: 150,
+            valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+            sortComparator: (a, b, order) => {
+                const dateA = new Date(a).getTime();
+                const dateB = new Date(b).getTime();
+
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            },
+            renderCell: (params) => (
+                <div>{new Date(params.value).toLocaleDateString()}</div>
+            ),
+        },
+        {
+            field: 'deadlineForApplication',
+            headerName: 'Apply before',
+            sortable: true,
+            width: 200,
+            valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+            sortComparator: (a, b, order) => {
+                const dateA = new Date(a).getTime();
+                const dateB = new Date(b).getTime();
+
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            },
+            renderCell: (params) => (
+                <div>{new Date(params.value).toLocaleDateString()}</div>
+            ),
+        },
+        {
+            headerName: 'Send Notification',
+            field: 'Send Notification',
+            width: 200,
+            renderCell: (param) => (
+                <Button variant='contained' sx={{ background: '#3C0753', ":hover": { bgcolor: "#3C0753" } }}
+                    onClick={() => {
+                        setSelectedDrive(param.row.id)
+                        setOpen(true)
+                    }}
+                >Send Notification</Button>
+            )
+        }
+    ];
+
+    const finishedCol = [
+        { field: 'id', headerName: 'ID', width: 50 },
+        { field: 'companyName', headerName: 'Company Name', width: 200 },
+        { field: 'jobRole', headerName: 'Role', width: 180 },
+        { field: 'ctc', headerName: 'CTC', width: 150 },
+        {
+            field: 'createdAt',
+            headerName: 'Posted on',
+            type: 'string',
+            width: 150,
+            valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+            sortComparator: (a, b, order) => {
+                const dateA = new Date(a).getTime();
+                const dateB = new Date(b).getTime();
+
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            },
+            renderCell: (params) => (
+                <div>{new Date(params.value).toLocaleDateString()}</div>
+            ),
+        },
+        {
+            field: 'deadlineForApplication',
+            headerName: 'Apply before',
+            sortable: true,
+            width: 200,
+            valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+            sortComparator: (a, b, order) => {
+                const dateA = new Date(a).getTime();
+                const dateB = new Date(b).getTime();
+
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            },
+            renderCell: (params) => (
+                <div>{new Date(params.value).toLocaleDateString()}</div>
+            ),
+        },
+        {
+            headerName: 'Generate Report',
+            field: 'Generate Report',
+            width: 200,
+            renderCell: (param) => (
+                <Button variant='contained' sx={{ background: '#3C0753', ":hover": { bgcolor: "#3C0753" } }}
+                    onClick={() => {
+                        setSelectedDrive(param.row.id)
+                        setOpen(true)
+                    }}
+                >Generate Report</Button>
+            )
+        }
+    ];
+
 
     const openAlert = async (id) => {
         setId(id)
@@ -254,7 +379,7 @@ const Drives = () => {
             </div>
             <div style={{ width: '100%', minHeight: 200, marginBottom: 100 }}>
                 <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-                    Current Drives
+                    Accepting Applications
                 </Typography>
                 <DataGrid
                     onCellClick={(e)=>{ navigate('/admin/drive/' + e.id ) }}
@@ -272,13 +397,35 @@ const Drives = () => {
             </div>
             <div style={{ width: '100%', marginTop: 40 }}>
                 <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-                    All Drives
+                    Unfinished Drives
                 </Typography>
                 <DataGrid
                     onCellClick={(e)=>{ navigate('/admin/drive/' + e.id ) }}
                     autoHeight
-                    rows={data}
-                    columns={columns}
+                    rows={unfinished}
+                    columns={unfinishedColumns}
+                    sx={{
+                        minHeight: 20
+                    }}
+                    initialState={{
+                        pagination: {
+                            paginationModel: { page: 0, pageSize: 5 },
+                        },
+                    }}
+                    pageSizeOptions={[5, 10, 15]}
+
+                />
+            </div>
+
+            <div style={{ width: '100%', marginTop: 40 }}>
+                <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                    Finished Drives
+                </Typography>
+                <DataGrid
+                    onCellClick={(e)=>{ navigate('/admin/drive/' + e.id ) }}
+                    autoHeight
+                    rows={finished}
+                    columns={finishedCol}
                     sx={{
                         minHeight: 20
                     }}

@@ -13,6 +13,10 @@ export const apis = {
     registerDrive: `${baseUrl}/admin/register-drive`,
     getAllDrive: `${baseUrl}/admin/get-drives`,
     getAllCurrentDrive: `${baseUrl}/admin/get-drives-current`,
+    getUnfinished: `${baseUrl}/admin/get-unfinished-drives`,
+    getFinished: `${baseUrl}/admin/get-finished-drives`,
+    getStudentsOffer: `${baseUrl}/student/get-student-offer`,
+    getAllCurrentDrive: `${baseUrl}/admin/get-drives-current`,
     deleteDrive: `${baseUrl}/admin/delete-drive`,
     getDrive: `${baseUrl}/admin/get-drive`,
     updateDrive: `${baseUrl}/admin/update-drive`,
@@ -34,6 +38,7 @@ export const apis = {
     registerApplication: `${baseUrl}/student/register-application`,
     deleteApplication: `${baseUrl}/student/delete-application`,
     getStudent: `${baseUrl}/student/get-student`,
+    getStudentData: `${baseUrl}/student/get-student-data`,
     getAllSkills: `${baseUrl}/student/get-skills`,
     getStudentSkills: `${baseUrl}/student/get-skills`,
     getSkillByName: `${baseUrl}/student/get-by-skill-name`,
@@ -58,7 +63,8 @@ export const apis = {
     getApplicationsCount: `${baseUrl}/statistic/get-application-count`,
     getPendingApplicationCount: `${baseUrl}/statistic/get-pending-application-count`,
     getStudentApplicationCount: `${baseUrl}/statistic/get-students-application-count`,
-    getStudentPendingApplicationCount: `${baseUrl}/statistic/get-students-pending-application-count`
+    getStudentPendingApplicationCount: `${baseUrl}/statistic/get-students-pending-application-count`,
+    placeStudents: `${baseUrl}/admin/place-students`
 }
 
 export default apis;

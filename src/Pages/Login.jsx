@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Grid, IconButton, InputAdornment, Link, TextField, Typography } from "@mui/material";
+import { Avatar, Box, Button, CircularProgress, Grid, IconButton, InputAdornment, Link, TextField, Typography } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import React, { useState } from "react";
 import axios from "axios";
@@ -12,15 +12,15 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 const Login = () => {
   const [isTFAEnabled, setIsTFAEnabled] = useState(false)
-  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
   const [code, setCode] = useState()
   const [email, setEmail] = useState();
   const [id, setId] = useState();
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState({
-    id:'',
-    password:''  
+    id: '',
+    password: ''
   })
 
   const changeCode = (e) => {
@@ -56,11 +56,11 @@ const Login = () => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData.entries());
-    if(validate(data)){
+    if (validate(data)) {
       return;
     }
+    setLoading(true)
     setId(data.id)
-    console.log(data.id)
     axios.post(apis.authenticate, data)
       .then((res) => {
         if (res.data.tfaenabled) {
@@ -77,22 +77,22 @@ const Login = () => {
         }
       })
       .catch((err) => {
+        setLoading(false)
         if (err.response != undefined)
           toast.error(err.response.data)
         else
           toast.error("Server error")
-        console.log(err.response);
       })
   }
 
   const validate = (data) => {
     let isError = false
-    if(data.id === ''){
-      setError({...error, id: 'Id is required'})
+    if (data.id === '') {
+      setError({ ...error, id: 'Id is required' })
       isError = true
     }
-    if(data.password === ''){
-      setError({...error, password: 'Password is required'})
+    if (data.password === '') {
+      setError({ ...error, password: 'Password is required' })
       isError = true
     }
     return isError
@@ -112,104 +112,113 @@ const Login = () => {
 
       />
       {
-        !isTFAEnabled ?
-          <Grid item sm={12} lg={4}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center"
-            }}>
-            <Box sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "column",
-              width: "100%"
-            }}>
-
-              <Avatar sx={{ bgcolor: 'black' }}>
-                <LockOutlinedIcon />
-              </Avatar>
-              <Typography component="h1" variant="h5" fontWeight="bold">
-                Sign In
-              </Typography>
-              <Box component="form" noValidate="false" onSubmit={handleSubmit} sx={{ width: "70%" }}>
-                <TextField
-                  variant="standard"
-                  label="Id"
-                  name="id"
-                  sx={{ marginY: 1 }}
-                  required
-                  error={ error.id }
-                  helperText = { error.id }
-                  onChange={ () => { setError({...error, id: '' })} }
-                  fullWidth
-                  />
-                <TextField
-                  variant="standard"
-                  label="Password"
-                  name="password"
-                  sx={{ marginY: 1 }}
-                  type={ showPassword ? "text" : "password" }
-                  required
-                  onChange={ () => { setError({...error, password: '' })} }
-                  error = { error.password }
-                  helperText = { error.password }
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton 
-                          aria-label="toggle password visibility"
-                          onClick={handleShowPasswordToggle}>
-                          { showPassword ? <VisibilityOffIcon /> : <VisibilityIcon /> }
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                  fullWidth
-                />
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ marginY: 4 }}
-                >
-                  Sign In
-                </Button>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="subtitle1">
-                    <Link href="forget-password">Forgot Password?</Link>
-                  </Typography>
-                  <Typography variant="subtitle1">
-                    <Link href="/signup">Don't have account?</Link>
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </Grid>
-          :
+        loading ?
           <Grid item xs={12} lg={4} sx={{
             display: "flex",
             justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column"
+            alignItems: "center"
           }}>
-            <Typography variant='h5' sx={{ fontWeight: "bold", textAlign: "center" }}>Verify your self</Typography>
+            <CircularProgress />
+          </Grid> 
+          :
+        !isTFAEnabled ?
+      <Grid item sm={12} lg={4}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+        <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          width: "100%"
+        }}>
 
-            <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: "100%" }}>
-
-              <TextField name='code' variant='filled' label="Enter 6 digit code" sx={{ width: "80%" }} autoComplete={false} onChange={changeCode} />
-
-              <Button
-                type="submit"
-                onClick={verifyCode}
-                variant="contained"
-                sx={{ marginY: 4, width: "80%" }}
-              >
-                Verify
-              </Button>
+          <Avatar sx={{ bgcolor: 'black' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5" fontWeight="bold">
+            Sign In
+          </Typography>
+          <Box component="form" noValidate="false" onSubmit={handleSubmit} sx={{ width: "70%" }}>
+            <TextField
+              variant="standard"
+              label="Id"
+              name="id"
+              sx={{ marginY: 1 }}
+              required
+              error={error.id}
+              helperText={error.id}
+              onChange={() => { setError({ ...error, id: '' }) }}
+              fullWidth
+            />
+            <TextField
+              variant="standard"
+              label="Password"
+              name="password"
+              sx={{ marginY: 1 }}
+              type={showPassword ? "text" : "password"}
+              required
+              onChange={() => { setError({ ...error, password: '' }) }}
+              error={error.password}
+              helperText={error.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleShowPasswordToggle}>
+                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+              fullWidth
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ marginY: 4 }}
+            >
+              Sign In
+            </Button>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="subtitle1">
+                <Link href="forget-password">Forgot Password?</Link>
+              </Typography>
+              <Typography variant="subtitle1">
+                <Link href="/signup">Don't have account?</Link>
+              </Typography>
             </Box>
-          </Grid>
+          </Box>
+        </Box>
+      </Grid>
+      :
+      <Grid item xs={12} lg={4} sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column"
+      }}>
+        <Typography variant='h5' sx={{ fontWeight: "bold", textAlign: "center" }}>Verify your self</Typography>
+
+        <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: "100%" }}>
+
+          <TextField name='code' variant='filled' label="Enter 6 digit code" sx={{ width: "80%" }} autoComplete={false} onChange={changeCode} />
+
+          <Button
+            type="submit"
+            onClick={verifyCode}
+            variant="contained"
+            sx={{ marginY: 4, width: "80%" }}
+          >
+            Verify
+          </Button>
+        </Box>
+      </Grid>
       }
       <ToastContainer />
     </Grid>
